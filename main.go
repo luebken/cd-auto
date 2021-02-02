@@ -50,12 +50,13 @@ func onAdd(obj interface{}) {
 func onUpdate(obj interface{}, obj2 interface{}) {
 	cm := obj.(*corev1.ConfigMap)
 	fmt.Printf("ConfigMap was added/updated: %s. With labels: %s.\n", cm.Name, cm.Labels)
-	fmt.Printf("Data: %s", cm.Data)
 	customdashboardAuto := cm.Labels["instana_customdashboard_auto"] == "true"
-	appLabel := cm.Labels["app"] != ""
-	if customdashboardAuto && appLabel {
+	if customdashboardAuto {
 		fmt.Printf("===>: Will create dashboard for %s with %s \n", cm.Name, cm.Labels)
+		dashboardJSON := cm.Data["instana_dashboard.json"]
+		fmt.Printf("JSON: %s", dashboardJSON)
 	}
+
 }
 func onDelete(obj interface{}) {
 	//pod := obj.(*corev1.Pod)

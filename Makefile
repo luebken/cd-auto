@@ -16,7 +16,7 @@ k8s-example-delete:
 	kubectl delete pod/nginx
 
 configmap-create:
-	kubectl create configmap instana-dashboard --from-file=example.json
+	kubectl create configmap instana-dashboard --from-file=instana_dashboard.json
 	kubectl label configmap instana-dashboard instana_customdashboard_auto=true
 configmap-delete:
 	kubectl delete configmap instana-dashboard
