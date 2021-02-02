@@ -28,8 +28,8 @@ func main() {
 	}
 
 	kubeInformerFactory := kubeinformers.NewSharedInformerFactory(clientset, time.Second*30)
-	podInformer := kubeInformerFactory.Core().V1().Pods().Informer()
-	podInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+	confgMapInformer := kubeInformerFactory.Core().V1().ConfigMaps().Informer()
+	confgMapInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc:    onAdd,
 		DeleteFunc: onDelete,
 		UpdateFunc: onUpdate,
@@ -44,19 +44,20 @@ func main() {
 }
 
 func onAdd(obj interface{}) {
-	pod := obj.(*corev1.Pod)
-	fmt.Printf("Pod was added: %s. With labels: %s.\n", pod.Name, pod.Labels)
-	customdashboardAuto := pod.Labels["instana_customdashboard_auto"] == "true"
-	appLabel := pod.Labels["app"] != ""
+	onUpdate(obj, nil)
+}
+
+func onUpdate(obj interface{}, obj2 interface{}) {
+	cm := obj.(*corev1.ConfigMap)
+	fmt.Printf("ConfigMap was added/updated: %s. With labels: %s.\n", cm.Name, cm.Labels)
+	fmt.Printf("Data: %s", cm.Data)
+	customdashboardAuto := cm.Labels["instana_customdashboard_auto"] == "true"
+	appLabel := cm.Labels["app"] != ""
 	if customdashboardAuto && appLabel {
-		fmt.Printf("===>: Will create dashboard for %s with %s \n", pod.Name, pod.Labels)
+		fmt.Printf("===>: Will create dashboard for %s with %s \n", cm.Name, cm.Labels)
 	}
 }
 func onDelete(obj interface{}) {
 	//pod := obj.(*corev1.Pod)
 	//fmt.Printf("pod delete: %s \n", pod.Name)
-}
-func onUpdate(obj1 interface{}, obj2 interface{}) {
-	//pod := obj1.(*corev1.Pod)
-	//fmt.Printf("pod update: %s \n", pod.Name)
 }
